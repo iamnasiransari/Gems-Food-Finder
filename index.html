@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gems Food Finder</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter Font -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Light gray background */
+        }
+    </style>
+    <!-- Custom stylesheet for overrides and component styling -->
+    <link rel="stylesheet" href="food.css">
+</head>
+<body class="min-h-screen">
+
+    <!-- Header and Location -->
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto p-4 flex flex-col md:flex-row items-center justify-between">
+            
+            <!-- Logo/Branding -->
+            <div class="logo text-3xl font-bold text-red-500 mb-4 md:mb-0">
+                <span class="text-gray-900">Gems</span>Food
+            </div>
+
+            <!-- Location and Search -->
+            <div class="flex flex-col sm:flex-row w-full md:w-auto space-y-3 sm:space-y-0 sm:space-x-4">
+                <!-- Location Dropdown -->
+                <div class="relative">
+                    <input type="text" value="New Delhi, India" readonly
+                        class="pl-10 pr-4 py-2 w-full sm:w-60 border border-gray-300 rounded-lg text-gray-700 focus:ring-red-500 focus:border-red-500 cursor-pointer"
+                        onclick="this.value = 'Select City...'; setTimeout(() => this.value='New Delhi, India', 1000)"
+                        placeholder="Select Location">
+                    <svg class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="relative w-full md:w-96">
+                    <input type="text" id="restaurant-search" onkeyup="filterRestaurants()"
+                        class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg text-gray-700 focus:ring-red-500 focus:border-red-500"
+                        placeholder="Search for restaurants or dishes...">
+                    <svg class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Categories/Filters Section -->
+        <section class="mb-10">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Discover Amazing Food Near You</h2>
+            <div class="flex flex-wrap gap-3">
+                <button class="filter-btn bg-red-500 text-white px-5 py-2 rounded-full font-medium shadow-md hover:bg-red-600 transition duration-150 active-filter" data-filter="all">Delivery</button>
+                <button class="filter-btn bg-white text-gray-700 px-5 py-2 border border-gray-300 rounded-full font-medium hover:bg-gray-50 transition duration-150" data-filter="all">Dining Out</button>
+                <button class="filter-btn bg-white text-gray-700 px-5 py-2 border border-gray-300 rounded-full font-medium hover:bg-gray-50 transition duration-150" data-filter="all">Nightlife</button>
+                <button class="filter-btn bg-white text-gray-700 px-5 py-2 border border-gray-300 rounded-full font-medium hover:bg-gray-50 transition duration-150" data-filter="quick">Quick Bites</button>
+                <button class="filter-btn bg-white text-gray-700 px-5 py-2 border border-gray-300 rounded-full font-medium hover:bg-gray-50 transition duration-150" data-filter="premium">Premium</button>
+            </div>
+        </section>
+
+        <!-- Restaurant Listings -->
+        <section>
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Restaurants in New Delhi</h2>
+            <div id="restaurant-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Restaurant cards will be injected here by JavaScript -->
+            </div>
+            <div id="no-results" class="hidden text-center py-10 text-xl text-gray-500">
+                Sorry, no restaurants matched your search!
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Mock Restaurant Data
+        const restaurants = [
+            {
+                id: 1,
+                name: "The Grand Thali",
+                cuisine: "North Indian, Gujarati",
+                rating: 4.5,
+                cost: "₹800 for two",
+                deliveryTime: "30 min",
+                imageUrl: "thali.jpeg",
+                tags: ["premium", "all"],
+                location: "Connaught Place, New Delhi",
+                menu: [
+                    { name: 'Grand Thali', price: '₹320' },
+                    { name: 'Paneer Tikka', price: '₹220' },
+                    { name: 'Gulab Jamun', price: '₹80' }
+                ]
+            },
+            {
+                id: 2,
+                name: "Pizza Palace",
+                cuisine: "Italian, Fast Food",
+                rating: 3.9,
+                cost: "₹550 for two",
+                deliveryTime: "45 min",
+                imageUrl: "pizza.webp",
+                tags: ["quick", "all"],
+                location: "Hauz Khas Village, New Delhi",
+                menu: [
+                    { name: 'Margherita', price: '₹299' },
+                    { name: 'Pepperoni', price: '₹399' },
+                    { name: 'Garlic Bread', price: '₹129' }
+                ]
+            },
+            {
+                id: 3,
+                name: "Asian Wok Express",
+                cuisine: "Chinese, Thai",
+                rating: 4.1,
+                cost: "₹650 for two",
+                deliveryTime: "25 min",
+                imageUrl: "hakka noodles.webp",
+                tags: ["quick", "all"],
+                location: "Karol Bagh, New Delhi",
+                menu: [
+                    { name: 'Veg Hakka Noodles', price: '₹199' },
+                    { name: 'Schezwan Fried Rice', price: '₹249' },
+                    { name: 'Spring Rolls', price: '₹149' }
+                ]
+            },
+            {
+                id: 4,
+                name: "Healthy Bowls Co.",
+                cuisine: "Salads, Healthy Food",
+                rating: 4.8,
+                cost: "₹400 for two",
+                deliveryTime: "35 min",
+                imageUrl: "salad.webp",
+                tags: ["premium", "all"],
+                location: "Saket, New Delhi",
+                menu: [
+                    { name: 'Quinoa Bowl', price: '₹299' },
+                    { name: 'Protein Salad', price: '₹349' },
+                    { name: 'Fresh Juice', price: '₹149' }
+                ]
+            },
+            {
+                id: 5,
+                name: "Biryani House",
+                cuisine: "Biryani, Mughlai",
+                rating: 4.3,
+                cost: "₹700 for two",
+                deliveryTime: "40 min",
+                imageUrl: "biryani.webp",
+                tags: ["all"],
+                location: "Lajpat Nagar, New Delhi",
+                menu: [
+                    { name: 'Hyderabadi Biryani', price: '₹399' },
+                    { name: 'Raita', price: '₹59' },
+                    { name: 'Kofta', price: '₹199' }
+                ]
+            },
+            {
+                id: 6,
+                name: "Local Cafe & Grill",
+                cuisine: "Cafe, Continental",
+                rating: 4.0,
+                cost: "₹950 for two",
+                deliveryTime: "50 min",
+                imageUrl: "coffee.webp",
+                tags: ["all"],
+                location: "CP Market, New Delhi",
+                menu: [
+                    { name: 'Grilled Sandwich', price: '₹199' },
+                    { name: 'Cappuccino', price: '₹129' },
+                    { name: 'BBQ Platter', price: '₹499' }
+                ]
+            }
+        ];
+
+        const restaurantList = document.getElementById('restaurant-list');
+        const noResults = document.getElementById('no-results');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+
+        /**
+         * Generates the HTML for a single restaurant card.
+         * @param {object} rest - The restaurant object.
+         * @returns {string} HTML string.
+         */
+        function generateCardHTML(rest) {
+            return `
+                <div class="restaurant-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-1 cursor-pointer">
+                    <!-- Image -->
+                    <div class="h-40 overflow-hidden relative">
+                        <img src="${rest.imageUrl}" alt="${rest.name}" class="w-full h-full object-cover">
+                        <!-- Delivery Time Overlay -->
+                        <div class="absolute bottom-0 right-0 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-tl-lg shadow-md">
+                            ${rest.deliveryTime}
+                        </div>
+                    </div>
+                    
+                    <div class="p-4">
+                        <!-- Name and Rating -->
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-semibold text-gray-900 truncate">${rest.name}</h3>
+                            <div class="flex items-center bg-green-600 text-white text-sm font-bold px-2 py-0.5 rounded-md ml-2">
+                                ${rest.rating}
+                                <svg class="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.381-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            </div>
+                        </div>
+
+                        <!-- Cuisine and Cost -->
+                        <div class="flex justify-between text-sm text-gray-500">
+                            <p class="truncate">${rest.cuisine} • <span class="text-muted">${rest.location}</span></p>
+                            <p class="font-medium">${rest.cost}</p>
+                        </div>
+
+                        <!-- Menu toggle -->
+                        <div class="mt-3">
+                            <button class="menu-toggle bg-white border border-gray-300 px-3 py-1 rounded-full text-sm font-medium hover:bg-gray-50" onclick="toggleMenu(${rest.id})">View Menu</button>
+                            <div id="menu-${rest.id}" class="menu collapsible mt-3 bg-gray-50 p-3 rounded-md">
+                                ${rest.menu.map((item, idx) => `
+                                    <div class="menu-item flex flex-col text-sm text-gray-700 py-2" key="${idx}">
+                                        <div class="flex justify-between items-center">
+                                            <div>
+                                                <div class="font-medium cursor-pointer" onclick="showQuickAdd(${rest.id}, ${idx})">${item.name}</div>
+                                                <div id="custom-summary-${rest.id}-${idx}" class="custom-summary text-xs text-gray-500 mt-1">Onion: Yes, Garlic: Yes, Spice: normal</div>
+                                            </div>
+                                            <div class="ml-3 text-right">
+                                                <div class="text-sm font-medium">${item.price}</div>
+                                                <button class="text-xs text-blue-600 mt-1" onclick="toggleCustomize(${rest.id}, ${idx})">Customize</button>
+                                            </div>
+                                        </div>
+
+                                        <div id="customize-${rest.id}-${idx}" class="customize-panel collapsible mt-2 p-2 bg-white border rounded">
+                                            <div class="flex items-center gap-4">
+                                                <label class="text-sm"><input type="checkbox" onchange="updateCustomization(${rest.id}, ${idx}, 'onion', this.checked)" checked> Onion</label>
+                                                <label class="text-sm"><input type="checkbox" onchange="updateCustomization(${rest.id}, ${idx}, 'garlic', this.checked)" checked> Garlic</label>
+                                            </div>
+                                            <div class="mt-2 text-sm">
+                                                <label class="mr-3"><input type="radio" name="masala-${rest.id}-${idx}" onchange="updateCustomization(${rest.id}, ${idx}, 'masala', 'none')"> No Masala</label>
+                                                <label class="mr-3"><input type="radio" name="masala-${rest.id}-${idx}" onchange="updateCustomization(${rest.id}, ${idx}, 'masala', 'normal')" checked> Normal</label>
+                                                <label><input type="radio" name="masala-${rest.id}-${idx}" onchange="updateCustomization(${rest.id}, ${idx}, 'masala', 'extra')"> Extra</label>
+                                            </div>
+                                            <div class="mt-3 flex justify-end">
+                                                <button class="add-to-cart-btn bg-red-500 text-white px-3 py-1 rounded-md text-sm" onclick="addToCart(${rest.id}, ${idx})">Add to cart</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Renders the list of restaurants based on a filter and search query.
+         * @param {string} filter - The tag to filter by (e.g., 'quick', 'premium', 'all').
+         * @param {string} query - The search text.
+         */
+        function renderRestaurants(filter = 'all', query = '') {
+            const normalizedQuery = query.toLowerCase().trim();
+            
+            const filtered = restaurants.filter(rest => {
+                const matchesFilter = rest.tags.includes(filter);
+                const matchesSearch = normalizedQuery === '' || 
+                                      rest.name.toLowerCase().includes(normalizedQuery) ||
+                                      rest.cuisine.toLowerCase().includes(normalizedQuery);
+                return matchesFilter && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                restaurantList.innerHTML = '';
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+                restaurantList.innerHTML = filtered.map(generateCardHTML).join('');
+            }
+        }
+
+        /** Handles filtering by tag/category button click. */
+        function handleFilterClick(event) {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active-filter', 'bg-red-500', 'text-white', 'shadow-md', 'hover:bg-red-600', 'border-transparent'));
+            filterButtons.forEach(btn => btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300', 'hover:bg-gray-50'));
+
+            // Add active class to the clicked button
+            const button = event.currentTarget;
+            button.classList.add('active-filter', 'bg-red-500', 'text-white', 'shadow-md', 'hover:bg-red-600', 'border-transparent');
+            button.classList.remove('bg-white', 'text-gray-700', 'border-gray-300', 'hover:bg-gray-50');
+
+
+            const filterValue = button.getAttribute('data-filter');
+            const searchQuery = document.getElementById('restaurant-search').value;
+            renderRestaurants(filterValue, searchQuery);
+        }
+
+        /** Handles filtering by search bar input. */
+        function filterRestaurants() {
+            const query = document.getElementById('restaurant-search').value;
+            const activeFilter = document.querySelector('.active-filter')?.getAttribute('data-filter') || 'all';
+            renderRestaurants(activeFilter, query);
+        }
+
+        /** Toggle the menu visibility for a given restaurant id. */
+        function toggleMenu(id) {
+            const el = document.getElementById(`menu-${id}`);
+            if (!el) return;
+            el.classList.toggle('expanded');
+        }
+
+        // Customization state: { [restId]: { [itemIdx]: { onion: bool, garlic: bool, masala: 'none'|'normal'|'extra' } } }
+        const customizationState = {};
+
+        function toggleCustomize(restId, itemIdx) {
+            const panel = document.getElementById(`customize-${restId}-${itemIdx}`);
+            if (!panel) return;
+            panel.classList.toggle('expanded');
+            // ensure state exists
+            if (!customizationState[restId]) customizationState[restId] = {};
+            if (!customizationState[restId][itemIdx]) customizationState[restId][itemIdx] = { onion: true, garlic: true, masala: 'normal' };
+        }
+
+        function updateCustomization(restId, itemIdx, key, value) {
+            if (!customizationState[restId]) customizationState[restId] = {};
+            if (!customizationState[restId][itemIdx]) customizationState[restId][itemIdx] = { onion: true, garlic: true, masala: 'normal' };
+            customizationState[restId][itemIdx][key] = value;
+            const summaryEl = document.getElementById(`custom-summary-${restId}-${itemIdx}`);
+            if (summaryEl) {
+                const state = customizationState[restId][itemIdx];
+                const masalaText = state.masala || 'normal';
+                summaryEl.textContent = `Onion: ${state.onion ? 'Yes' : 'No'}, Garlic: ${state.garlic ? 'Yes' : 'No'}, Spice: ${masalaText}`;
+            }
+        }
+
+        /* CART: persistent client-side cart stored in localStorage */
+        const CART_KEY = 'gems_cart_v1';
+        let cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+
+        function addToCart(restId, itemIdx) {
+            const rest = restaurants.find(r => r.id === restId);
+            if (!rest) return;
+            const item = rest.menu[itemIdx];
+            if (!item) return;
+
+            // get customization (or defaults)
+            const custom = ((customizationState[restId] || {})[itemIdx]) || { onion: true, garlic: true, masala: 'normal' };
+
+            // build cart item
+            const cartItem = {
+                id: Date.now() + Math.random(),
+                restId,
+                restName: rest.name,
+                itemIdx,
+                name: item.name,
+                price: parseFloat(String(item.price).replace(/[₹,\s]/g, '')) || 0,
+                priceText: item.price,
+                qty: 1,
+                customization: { ...custom }
+            };
+
+            cart.push(cartItem);
+            saveCart();
+            renderCart();
+            // give quick feedback via toast
+            showToast(`${item.name} added to cart`);
+        }
+
+        function saveCart() {
+            localStorage.setItem(CART_KEY, JSON.stringify(cart));
+        }
+
+        function renderCart() {
+            const panel = document.getElementById('cart-panel');
+            const list = document.getElementById('cart-list');
+            const totalEl = document.getElementById('cart-total');
+            if (!panel || !list || !totalEl) return;
+            if (cart.length === 0) {
+                list.innerHTML = '<div class="p-4 text-gray-500">Your cart is empty</div>';
+                totalEl.textContent = '0';
+                const countEl = document.getElementById('cart-count');
+                if (countEl) countEl.textContent = '0';
+                return;
+            }
+            list.innerHTML = cart.map(ci => `
+                <div class="flex justify-between items-start p-3 border-b">
+                    <div>
+                        <div class="font-medium">${ci.name}</div>
+                        <div class="text-xs text-gray-500">${ci.restName} • ${ci.customization.onion ? 'Onion' : 'No Onion'}, ${ci.customization.garlic ? 'Garlic' : 'No Garlic'}, ${ci.customization.masala}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-medium">₹${(ci.price * ci.qty).toFixed(0)}</div>
+                        <div class="flex items-center justify-end gap-2 mt-2">
+                            <button class="px-2 py-0.5 border rounded" onclick="changeQty('${ci.id}', -1)">-</button>
+                            <div class="px-2">${ci.qty}</div>
+                            <button class="px-2 py-0.5 border rounded" onclick="changeQty('${ci.id}', 1)">+</button>
+                            <button class="ml-2 text-red-600 text-sm" onclick="removeCartItem('${ci.id}')">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            const total = cart.reduce((s, c) => s + (c.price * c.qty), 0);
+            totalEl.textContent = `₹${total.toFixed(0)}`;
+            const countEl = document.getElementById('cart-count');
+            if (countEl) countEl.textContent = String(cart.length);
+        }
+
+        function changeQty(cartId, delta) {
+            const ci = cart.find(c => String(c.id) === String(cartId));
+            if (!ci) return;
+            ci.qty = Math.max(1, ci.qty + delta);
+            saveCart();
+            renderCart();
+        }
+
+        function removeCartItem(cartId) {
+            cart = cart.filter(c => String(c.id) !== String(cartId));
+            saveCart();
+            renderCart();
+        }
+
+        function toggleCartPanel() {
+            const panel = document.getElementById('cart-panel');
+            if (panel) panel.classList.toggle('expanded');
+        }
+
+        // render cart on load
+        renderCart();
+        
+        // Add event listeners
+        filterButtons.forEach(button => {
+            button.addEventListener('click', handleFilterClick);
+        });
+
+        // Initial render on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderRestaurants();
+        });
+    </script>
+    <!-- Floating Cart Toggle -->
+    <button id="cart-toggle" onclick="toggleCartPanel()" class="fixed right-6 bottom-6 bg-red-500 text-white px-4 py-2 rounded-full shadow-lg z-50 flex items-center gap-2">
+        Cart (<span id="cart-count">0</span>)
+    </button>
+
+    <!-- Cart Panel -->
+        <div id="cart-panel" class="cart-panel fixed right-6 bottom-20 w-80 bg-white border rounded shadow-lg z-50 overflow-hidden">
+        <div id="cart-list" class="max-h-64 overflow-auto"></div>
+        <div class="p-3 border-t flex items-center justify-between">
+            <div class="text-sm">Total: <span id="cart-total">₹0</span></div>
+            <div class="flex items-center gap-2">
+                <button class="bg-gray-100 px-3 py-1 rounded" onclick="cart = []; saveCart(); renderCart();">Clear</button>
+                <button class="bg-red-500 text-white px-3 py-1 rounded" onclick="alert('Checkout not implemented')">Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <script>
+        /**
+         * Show a small toast message. Auto-dismisses after 2.2s.
+         * Non-blocking and supports multiple stacked toasts.
+         */
+        function showToast(message, timeout = 2200) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.textContent = message;
+            container.appendChild(t);
+            // force reflow to allow transition
+            requestAnimationFrame(() => t.classList.add('show'));
+            setTimeout(() => {
+                t.classList.remove('show');
+                setTimeout(() => t.remove(), 200);
+            }, timeout);
+        }
+    </script>
+
+    <script>
+        /**
+         * showQuickAdd: dynamically create a small modal to quick-add an item without customization.
+         * @param {number} restId
+         * @param {number} itemIdx
+         */
+        function showQuickAdd(restId, itemIdx) {
+            const rest = restaurants.find(r => r.id === restId);
+            if (!rest) return;
+            const item = rest.menu[itemIdx];
+            if (!item) return;
+
+            // create backdrop
+            const backdrop = document.createElement('div');
+            backdrop.style.position = 'fixed';
+            backdrop.style.left = '0';
+            backdrop.style.top = '0';
+            backdrop.style.width = '100%';
+            backdrop.style.height = '100%';
+            backdrop.style.background = 'rgba(0,0,0,0.4)';
+            backdrop.style.display = 'flex';
+            backdrop.style.alignItems = 'center';
+            backdrop.style.justifyContent = 'center';
+            backdrop.style.zIndex = '9999';
+
+            const box = document.createElement('div');
+            box.style.background = '#fff';
+            box.style.padding = '18px';
+            box.style.borderRadius = '8px';
+            box.style.minWidth = '260px';
+            box.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2)';
+
+            // choose image: prefer item.image, fall back to restaurant image, then placeholder
+            const imgSrc = item.image || rest.imageUrl || 'https://placehold.co/160x100/efefef/111111?text=No+Image';
+            box.innerHTML = `
+                <div style="display:flex; gap:12px; align-items:center;">
+                    <img src="${imgSrc}" alt="${item.name}" style="width:120px; height:80px; object-fit:cover; border-radius:6px; flex-shrink:0;" />
+                    <div style="flex:1">
+                        <div style="font-weight:600; margin-bottom:6px">${item.name}</div>
+                        <div style="color:#6b7280; margin-bottom:12px">Price: ${item.price}</div>
+                        <div style="display:flex; justify-content:flex-end; gap:8px">
+                            <button id="qa-cancel" style="padding:6px 10px; border-radius:6px; background:#f3f4f6; border:none;">Cancel</button>
+                            <button id="qa-add" style="padding:6px 10px; border-radius:6px; background:#ef4444; color:#fff; border:none;">Add to cart</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            backdrop.appendChild(box);
+            document.body.appendChild(backdrop);
+
+            function cleanup() {
+                backdrop.remove();
+            }
+
+            document.getElementById('qa-cancel').addEventListener('click', cleanup);
+            document.getElementById('qa-add').addEventListener('click', () => {
+                addToCart(restId, itemIdx);
+                cleanup();
+            });
+
+            // close when clicking outside the box
+            backdrop.addEventListener('click', (e) => {
+                if (e.target === backdrop) cleanup();
+            });
+        }
+    </script>
+
+    <!-- Checkout modal removed: reverted to previous behavior where Checkout shows a simple alert -->
+
+</body>
+</html>
