@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gems Food Finder</title>
+    <title>Yumzo </title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Use Inter Font -->
@@ -15,7 +15,7 @@
         }
     </style>
     <!-- Custom stylesheet for overrides and component styling -->
-    <link rel="stylesheet" href="food.css">
+    <link rel="stylesheet" href="Yumzo.css">
 </head>
 <body class="min-h-screen">
 
@@ -25,14 +25,24 @@
             
             <!-- Logo/Branding -->
             <div class="logo text-3xl font-bold text-red-500 mb-4 md:mb-0">
-                <span class="text-gray-900">Gems</span>Food
+                <span class="text-gray-900">Yumzo</span>Food
             </div>
 
             <!-- Location and Search -->
             <div class="flex flex-col sm:flex-row w-full md:w-auto space-y-3 sm:space-y-0 sm:space-x-4">
+                <!-- Language Selector -->
+                <div class="relative">
+                    <select id="language-selector" onchange="changeLanguage(this.value)" class="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 focus:ring-red-500 focus:border-red-500 cursor-pointer">
+                        <option value="en">English</option>
+                        <option value="hi">हिंदी</option>
+                        <option value="es">Español</option>
+                        <option value="fr">Français</option>
+                    </select>
+                </div>
+
                 <!-- Location Dropdown -->
                 <div class="relative">
-                    <input type="text" value="New Delhi, India" readonly
+                    <input type="text" id="location-input" value="New Delhi, India" readonly
                         class="pl-10 pr-4 py-2 w-full sm:w-60 border border-gray-300 rounded-lg text-gray-700 focus:ring-red-500 focus:border-red-500 cursor-pointer"
                         onclick="this.value = 'Select City...'; setTimeout(() => this.value='New Delhi, India', 1000)"
                         placeholder="Select Location">
@@ -46,7 +56,7 @@
                 <div class="relative w-full md:w-96">
                     <input type="text" id="restaurant-search" onkeyup="filterRestaurants()"
                         class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg text-gray-700 focus:ring-red-500 focus:border-red-500"
-                        placeholder="Search for restaurants or dishes...">
+                        id="search-placeholder">
                     <svg class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
@@ -81,6 +91,419 @@
     </main>
 
     <script>
+        // ===== Language Translation System =====
+        let currentLanguage = localStorage.getItem('selectedLanguage') || 'en';
+
+        const translations = {
+            en: {
+                discover: "Discover Amazing Food Near You",
+                delivery: "Delivery",
+                diningOut: "Dining Out",
+                nightlife: "Nightlife",
+                quickBites: "Quick Bites",
+                premium: "Premium",
+                restaurants: "Restaurants in New Delhi",
+                noResults: "Sorry, no restaurants matched your search!",
+                viewMenu: "View Menu",
+                items: "Items",
+                combos: "Combos",
+                customize: "Customize",
+                addToCart: "Add to cart",
+                selectLocationPlaceholder: "Select Location",
+                searchPlaceholder: "Search for restaurants or dishes...",
+                cart: "Cart",
+                clear: "Clear",
+                checkout: "Checkout",
+                cartEmpty: "Your cart is empty",
+                total: "Total",
+                checkoutNotImplemented: "Checkout not implemented",
+                cancel: "Cancel",
+                placeOrder: "Place order",
+                name: "Name",
+                phone: "Phone",
+                address: "Delivery address",
+                paymentMethod: "Payment method",
+                cashOnDelivery: "Cash on delivery",
+                card: "Card (mock)",
+                biodegradable: "Biodegradable Packaging",
+                bioDescription: "Eco-friendly packaging for a sustainable future",
+                orderPlaced: "Order placed",
+                emptyCart: "Cart is empty",
+                enterNameAddress: "Please enter name and address",
+                save: "Save",
+                // Restaurant Names
+                restGrandThali: "The Grand Thali",
+                restPizzaPalace: "Pizza Palace",
+                restAsianWok: "Asian Wok Express",
+                restHealthyBowls: "Healthy Bowls Co.",
+                restBiryaniHouse: "Biryani House",
+                restLocalCafe: "Local Cafe & Grill",
+                // Menu Items
+                menuGrandThali: "Grand Thali",
+                menuPaneerTikka: "Paneer Tikka",
+                menuGulabJamun: "Gulab Jamun",
+                menuMargherita: "Margherita",
+                menuPepperoni: "Pepperoni",
+                menuGarlicBread: "Garlic Bread",
+                menuVegHakka: "Veg Hakka Noodles",
+                menuSchezwan: "Schezwan Fried Rice",
+                menuSpringRolls: "Spring Rolls",
+                menuQuinoa: "Quinoa Bowl",
+                menuProteinSalad: "Protein Salad",
+                menuFreshJuice: "Fresh Juice",
+                menuBiryani: "Hyderabadi Biryani",
+                menuRaita: "Raita",
+                menuKofta: "Kofta",
+                menuSandwich: "Grilled Sandwich",
+                menuCappuccino: "Cappuccino",
+                menuBBQ: "BBQ Platter",
+                // Combo Names
+                comboThaliCombo: "Thali Combo",
+                comboFamilyFeast: "Family Feast",
+                comboPizzaLovers: "Pizza Lovers Combo",
+                comboPartyPack: "Party Pack",
+                comboNoodleBox: "Noodle Box",
+                comboAsianFeast: "Asian Feast",
+                comboHealthCombo: "Health Combo",
+                comboWellnessPack: "Wellness Pack",
+                comboBiryaniSpecial: "Biryani Special",
+                comboRoyalBiryani: "Royal Biryani",
+                comboCafeCombo: "Cafe Combo",
+                comboBrunchBundle: "Brunch Bundle"
+            },
+            hi: {
+                discover: "अपने पास से अद्भुत भोजन खोजें",
+                delivery: "डिलीवरी",
+                diningOut: "बाहर खाना",
+                nightlife: "नाइटलाइफ",
+                quickBites: "जल्दी खाना",
+                premium: "प्रीमियम",
+                restaurants: "नई दिल्ली में रेस्तरां",
+                noResults: "खेद है, कोई रेस्तरां आपकी खोज से मेल नहीं खाया!",
+                viewMenu: "मेनू देखें",
+                items: "आइटम",
+                combos: "कॉम्बो",
+                customize: "अनुकूलित करें",
+                addToCart: "कार्ट में जोड़ें",
+                selectLocationPlaceholder: "स्थान चुनें",
+                searchPlaceholder: "रेस्तरां या व्यंजन खोजें...",
+                cart: "कार्ट",
+                clear: "साफ करें",
+                checkout: "चेकआउट",
+                cartEmpty: "आपकी कार्ट खाली है",
+                total: "कुल",
+                checkoutNotImplemented: "चेकआउट लागू नहीं किया गया",
+                cancel: "रद्द करें",
+                placeOrder: "ऑर्डर देना",
+                name: "नाम",
+                phone: "फोन",
+                address: "डिलीवरी पता",
+                paymentMethod: "भुगतान विधि",
+                cashOnDelivery: "नकद डिलीवरी पर",
+                card: "कार्ड (मॉक)",
+                biodegradable: "बायोडिग्रेडेबल पैकेजिंग",
+                bioDescription: "टिकाऊ भविष्य के लिए पर्यावरण के अनुकूल पैकेजिंग",
+                orderPlaced: "ऑर्डर दिया गया",
+                emptyCart: "कार्ट खाली है",
+                enterNameAddress: "कृपया नाम और पता दर्ज करें",
+                save: "बचाएं",
+                // Restaurant Names
+                restGrandThali: "द ग्रैंड थाली",
+                restPizzaPalace: "पिज्जा पैलेस",
+                restAsianWok: "एशियन वोक एक्सप्रेस",
+                restHealthyBowls: "हेल्दी बाउल्स कं.",
+                restBiryaniHouse: "बिरयानी हाउस",
+                restLocalCafe: "लोकल कैफे एंड ग्रिल",
+                // Menu Items
+                menuGrandThali: "ग्रैंड थाली",
+                menuPaneerTikka: "पनीर टिक्का",
+                menuGulabJamun: "गुलाब जामुन",
+                menuMargherita: "मार्गेरिटा",
+                menuPepperoni: "पेपरोनी",
+                menuGarlicBread: "लहसुन ब्रेड",
+                menuVegHakka: "वेज हक्का नूडल्स",
+                menuSchezwan: "श्योझवान फ्राइड राइस",
+                menuSpringRolls: "स्प्रिंग रोल्स",
+                menuQuinoa: "क्विनोआ बाउल",
+                menuProteinSalad: "प्रोटीन सलाद",
+                menuFreshJuice: "ताज़ा जूस",
+                menuBiryani: "हैदराबादी बिरयानी",
+                menuRaita: "रायता",
+                menuKofta: "कोफ्ता",
+                menuSandwich: "ग्रिल्ड सैंडविच",
+                menuCappuccino: "कैपुचीनो",
+                menuBBQ: "BBQ प्लैटर",
+                // Combo Names
+                comboThaliCombo: "थाली कॉम्बो",
+                comboFamilyFeast: "फैमिली फीस्ट",
+                comboPizzaLovers: "पिज्जा लवर्स कॉम्बो",
+                comboPartyPack: "पार्टी पैक",
+                comboNoodleBox: "नूडल बॉक्स",
+                comboAsianFeast: "एशियन फीस्ट",
+                comboHealthCombo: "हेल्थ कॉम्बो",
+                comboWellnessPack: "वेलनेस पैक",
+                comboBiryaniSpecial: "बिरयानी स्पेशल",
+                comboRoyalBiryani: "रॉयल बिरयानी",
+                comboCafeCombo: "कैफे कॉम्बो",
+                comboBrunchBundle: "ब्रंच बंडल"
+            },
+            es: {
+                discover: "Descubra Comida Increíble Cerca de Usted",
+                delivery: "Entrega",
+                diningOut: "Comer Fuera",
+                nightlife: "Vida Nocturna",
+                quickBites: "Comidas Rápidas",
+                premium: "Premium",
+                restaurants: "Restaurantes en Nueva Delhi",
+                noResults: "¡Lo sentimos, ningún restaurante coincidió con tu búsqueda!",
+                viewMenu: "Ver Menú",
+                items: "Artículos",
+                combos: "Combos",
+                customize: "Personalizar",
+                addToCart: "Agregar al carrito",
+                selectLocationPlaceholder: "Seleccionar ubicación",
+                searchPlaceholder: "Buscar restaurantes o platos...",
+                cart: "Carrito",
+                clear: "Limpiar",
+                checkout: "Pagar",
+                cartEmpty: "Tu carrito está vacío",
+                total: "Total",
+                checkoutNotImplemented: "Pago no implementado",
+                cancel: "Cancelar",
+                placeOrder: "Realizar pedido",
+                name: "Nombre",
+                phone: "Teléfono",
+                address: "Dirección de entrega",
+                paymentMethod: "Método de pago",
+                cashOnDelivery: "Pago contra entrega",
+                card: "Tarjeta (simulada)",
+                biodegradable: "Empaque Biodegradable",
+                bioDescription: "Empaque respetuoso con el medio ambiente para un futuro sostenible",
+                orderPlaced: "Pedido realizado",
+                emptyCart: "Carrito vacío",
+                enterNameAddress: "Por favor ingrese nombre y dirección",
+                save: "Guardar",
+                // Restaurant Names
+                restGrandThali: "El Gran Thali",
+                restPizzaPalace: "Palacio de la Pizza",
+                restAsianWok: "Wok Asiático Express",
+                restHealthyBowls: "Bowls Saludables Co.",
+                restBiryaniHouse: "Casa de Biryani",
+                restLocalCafe: "Café y Parrilla Local",
+                // Menu Items
+                menuGrandThali: "Gran Thali",
+                menuPaneerTikka: "Paneer Tikka",
+                menuGulabJamun: "Gulab Jamun",
+                menuMargherita: "Margarita",
+                menuPepperoni: "Pepperoni",
+                menuGarlicBread: "Pan de Ajo",
+                menuVegHakka: "Fideos Veg Hakka",
+                menuSchezwan: "Arroz Frito Schezwan",
+                menuSpringRolls: "Rollos de Primavera",
+                menuQuinoa: "Bowl de Quinua",
+                menuProteinSalad: "Ensalada de Proteína",
+                menuFreshJuice: "Jugo Fresco",
+                menuBiryani: "Biryani Hyderabadi",
+                menuRaita: "Raita",
+                menuKofta: "Kofta",
+                menuSandwich: "Sándwich a la Parrilla",
+                menuCappuccino: "Capuchino",
+                menuBBQ: "Bandeja BBQ",
+                // Combo Names
+                comboThaliCombo: "Combo Thali",
+                comboFamilyFeast: "Banquete Familiar",
+                comboPizzaLovers: "Combo Amantes de Pizza",
+                comboPartyPack: "Paquete de Fiesta",
+                comboNoodleBox: "Caja de Fideos",
+                comboAsianFeast: "Banquete Asiático",
+                comboHealthCombo: "Combo Saludable",
+                comboWellnessPack: "Paquete de Bienestar",
+                comboBiryaniSpecial: "Biryani Especial",
+                comboRoyalBiryani: "Biryani Real",
+                comboCafeCombo: "Combo Café",
+                comboBrunchBundle: "Paquete de Brunch"
+            },
+            fr: {
+                discover: "Découvrez une Nourriture Incroyable Près de Vous",
+                delivery: "Livraison",
+                diningOut: "Manger à l'Extérieur",
+                nightlife: "Vie Nocturne",
+                quickBites: "Collations Rapides",
+                premium: "Premium",
+                restaurants: "Restaurants à New Delhi",
+                noResults: "Désolé, aucun restaurant ne correspond à votre recherche!",
+                viewMenu: "Voir le Menu",
+                items: "Articles",
+                combos: "Combos",
+                customize: "Personnaliser",
+                addToCart: "Ajouter au panier",
+                selectLocationPlaceholder: "Sélectionner un lieu",
+                searchPlaceholder: "Rechercher des restaurants ou des plats...",
+                cart: "Panier",
+                clear: "Effacer",
+                checkout: "Passer la Commande",
+                cartEmpty: "Votre panier est vide",
+                total: "Total",
+                checkoutNotImplemented: "Commande non implémentée",
+                cancel: "Annuler",
+                placeOrder: "Passer la commande",
+                name: "Nom",
+                phone: "Téléphone",
+                address: "Adresse de livraison",
+                paymentMethod: "Méthode de paiement",
+                cashOnDelivery: "Paiement à la livraison",
+                card: "Carte (simulée)",
+                biodegradable: "Emballage Biodégradable",
+                bioDescription: "Emballage respectueux de l'environnement pour un avenir durable",
+                orderPlaced: "Commande passée",
+                emptyCart: "Panier vide",
+                enterNameAddress: "Veuillez entrer le nom et l'adresse",
+                save: "Enregistrer",
+                // Restaurant Names
+                restGrandThali: "Le Grand Thali",
+                restPizzaPalace: "Palais de la Pizza",
+                restAsianWok: "Wok Asiatique Express",
+                restHealthyBowls: "Bols Sains Co.",
+                restBiryaniHouse: "Maison du Biryani",
+                restLocalCafe: "Café et Grill Local",
+                // Menu Items
+                menuGrandThali: "Grand Thali",
+                menuPaneerTikka: "Paneer Tikka",
+                menuGulabJamun: "Gulab Jamun",
+                menuMargherita: "Margherita",
+                menuPepperoni: "Pepperoni",
+                menuGarlicBread: "Pain à l'Ail",
+                menuVegHakka: "Nouilles Veg Hakka",
+                menuSchezwan: "Riz Frit Schezwan",
+                menuSpringRolls: "Rouleaux de Printemps",
+                menuQuinoa: "Bol de Quinoa",
+                menuProteinSalad: "Salade Protéinée",
+                menuFreshJuice: "Jus Frais",
+                menuBiryani: "Biryani Hyderabadi",
+                menuRaita: "Raita",
+                menuKofta: "Kofta",
+                menuSandwich: "Sandwich Grillé",
+                menuCappuccino: "Cappuccino",
+                menuBBQ: "Plateau BBQ",
+                // Combo Names
+                comboThaliCombo: "Combo Thali",
+                comboFamilyFeast: "Festin Familial",
+                comboPizzaLovers: "Combo Amateurs de Pizza",
+                comboPartyPack: "Pack Fête",
+                comboNoodleBox: "Boîte de Nouilles",
+                comboAsianFeast: "Festin Asiatique",
+                comboHealthCombo: "Combo Santé",
+                comboWellnessPack: "Pack Bien-être",
+                comboBiryaniSpecial: "Biryani Spécial",
+                comboRoyalBiryani: "Biryani Royal",
+                comboCafeCombo: "Combo Café",
+                comboBrunchBundle: "Forfait Brunch"
+            }
+        };
+
+        function t(key) {
+            return translations[currentLanguage]?.[key] || translations['en'][key] || key;
+        }
+
+        // Map restaurant IDs to translation keys
+        const restaurantTranslationMap = {
+            1: 'restGrandThali',
+            2: 'restPizzaPalace',
+            3: 'restAsianWok',
+            4: 'restHealthyBowls',
+            5: 'restBiryaniHouse',
+            6: 'restLocalCafe'
+        };
+
+        // Map menu item names to translation keys
+        const menuItemTranslationMap = {
+            'Grand Thali': 'menuGrandThali',
+            'Paneer Tikka': 'menuPaneerTikka',
+            'Gulab Jamun': 'menuGulabJamun',
+            'Margherita': 'menuMargherita',
+            'Pepperoni': 'menuPepperoni',
+            'Garlic Bread': 'menuGarlicBread',
+            'Veg Hakka Noodles': 'menuVegHakka',
+            'Schezwan Fried Rice': 'menuSchezwan',
+            'Spring Rolls': 'menuSpringRolls',
+            'Quinoa Bowl': 'menuQuinoa',
+            'Protein Salad': 'menuProteinSalad',
+            'Fresh Juice': 'menuFreshJuice',
+            'Hyderabadi Biryani': 'menuBiryani',
+            'Raita': 'menuRaita',
+            'Kofta': 'menuKofta',
+            'Grilled Sandwich': 'menuSandwich',
+            'Cappuccino': 'menuCappuccino',
+            'BBQ Platter': 'menuBBQ'
+        };
+
+        // Map combo names to translation keys
+        const comboTranslationMap = {
+            'Thali Combo': 'comboThaliCombo',
+            'Family Feast': 'comboFamilyFeast',
+            'Pizza Lovers Combo': 'comboPizzaLovers',
+            'Party Pack': 'comboPartyPack',
+            'Noodle Box': 'comboNoodleBox',
+            'Asian Feast': 'comboAsianFeast',
+            'Health Combo': 'comboHealthCombo',
+            'Wellness Pack': 'comboWellnessPack',
+            'Biryani Special': 'comboBiryaniSpecial',
+            'Royal Biryani': 'comboRoyalBiryani',
+            'Cafe Combo': 'comboCafeCombo',
+            'Brunch Bundle': 'comboBrunchBundle'
+        };
+
+        function getRestaurantNameTranslated(restId, englishName) {
+            const key = restaurantTranslationMap[restId];
+            return key ? t(key) : englishName;
+        }
+
+        function getMenuItemNameTranslated(englishName) {
+            const key = menuItemTranslationMap[englishName];
+            return key ? t(key) : englishName;
+        }
+
+        function getComboNameTranslated(englishName) {
+            const key = comboTranslationMap[englishName];
+            return key ? t(key) : englishName;
+        }
+
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('selectedLanguage', lang);
+            updateUIText();
+        }
+
+        function updateUIText() {
+            // Update page titles and labels
+            document.querySelector('main section h2').textContent = t('discover');
+            document.querySelectorAll('.filter-btn')[0].textContent = t('delivery');
+            document.querySelectorAll('.filter-btn')[1].textContent = t('diningOut');
+            document.querySelectorAll('.filter-btn')[2].textContent = t('nightlife');
+            document.querySelectorAll('.filter-btn')[3].textContent = t('quickBites');
+            document.querySelectorAll('.filter-btn')[4].textContent = t('premium');
+            document.querySelectorAll('main section')[1].querySelector('h2').textContent = t('restaurants');
+            document.getElementById('no-results').textContent = t('noResults');
+            document.getElementById('restaurant-search').placeholder = t('searchPlaceholder');
+            document.getElementById('location-input').placeholder = t('selectLocationPlaceholder');
+            
+            // Update cart elements
+            document.getElementById('cart-text').textContent = t('cart');
+            document.getElementById('total-text').textContent = t('total');
+            document.getElementById('clear-btn').textContent = t('clear');
+            document.getElementById('checkout-btn').textContent = t('checkout');
+            
+            // Re-render restaurants to apply translations
+            const activeFilter = document.querySelector('.active-filter')?.getAttribute('data-filter') || 'all';
+            renderRestaurants(activeFilter, '');
+        }
+
+        // Initialize language on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('language-selector').value = currentLanguage;
+            updateUIText();
+        });
+
         // Mock Restaurant Data
         const restaurants = [
             {
@@ -97,6 +520,10 @@
                     { name: 'Grand Thali', price: '₹320' },
                     { name: 'Paneer Tikka', price: '₹220' },
                     { name: 'Gulab Jamun', price: '₹80' }
+                ],
+                combos: [
+                    { name: 'Thali Combo', description: 'Grand Thali + Paneer Tikka + Gulab Jamun', originalPrice: 620, comboPrice: '₹499', savings: 121 },
+                    { name: 'Family Feast', description: '2x Grand Thali + 2x Paneer Tikka + Gulab Jamun', originalPrice: 1260, comboPrice: '₹899', savings: 361 }
                 ]
             },
             {
@@ -113,6 +540,10 @@
                     { name: 'Margherita', price: '₹299' },
                     { name: 'Pepperoni', price: '₹399' },
                     { name: 'Garlic Bread', price: '₹129' }
+                ],
+                combos: [
+                    { name: 'Pizza Lovers Combo', description: 'Margherita + Pepperoni + Garlic Bread', originalPrice: 827, comboPrice: '₹649', savings: 178 },
+                    { name: 'Party Pack', description: '2x Margherita + 2x Pepperoni + 2x Garlic Bread', originalPrice: 1654, comboPrice: '₹1199', savings: 455 }
                 ]
             },
             {
@@ -129,6 +560,10 @@
                     { name: 'Veg Hakka Noodles', price: '₹199' },
                     { name: 'Schezwan Fried Rice', price: '₹249' },
                     { name: 'Spring Rolls', price: '₹149' }
+                ],
+                combos: [
+                    { name: 'Noodle Box', description: 'Veg Hakka Noodles + Schezwan Fried Rice + Spring Rolls', originalPrice: 597, comboPrice: '₹449', savings: 148 },
+                    { name: 'Asian Feast', description: '2x Veg Hakka Noodles + 2x Schezwan Fried Rice + Spring Rolls', originalPrice: 1045, comboPrice: '₹799', savings: 246 }
                 ]
             },
             {
@@ -145,6 +580,10 @@
                     { name: 'Quinoa Bowl', price: '₹299' },
                     { name: 'Protein Salad', price: '₹349' },
                     { name: 'Fresh Juice', price: '₹149' }
+                ],
+                combos: [
+                    { name: 'Health Combo', description: 'Quinoa Bowl + Protein Salad + Fresh Juice', originalPrice: 797, comboPrice: '₹599', savings: 198 },
+                    { name: 'Wellness Pack', description: '2x Quinoa Bowl + 2x Protein Salad + 2x Fresh Juice', originalPrice: 1594, comboPrice: '₹1099', savings: 495 }
                 ]
             },
             {
@@ -161,6 +600,10 @@
                     { name: 'Hyderabadi Biryani', price: '₹399' },
                     { name: 'Raita', price: '₹59' },
                     { name: 'Kofta', price: '₹199' }
+                ],
+                combos: [
+                    { name: 'Biryani Special', description: 'Hyderabadi Biryani + Raita + Kofta', originalPrice: 657, comboPrice: '₹499', savings: 158 },
+                    { name: 'Royal Biryani', description: '2x Hyderabadi Biryani + Raita + 2x Kofta', originalPrice: 1056, comboPrice: '₹799', savings: 257 }
                 ]
             },
             {
@@ -177,6 +620,10 @@
                     { name: 'Grilled Sandwich', price: '₹199' },
                     { name: 'Cappuccino', price: '₹129' },
                     { name: 'BBQ Platter', price: '₹499' }
+                ],
+                combos: [
+                    { name: 'Cafe Combo', description: 'Grilled Sandwich + Cappuccino + BBQ Platter', originalPrice: 827, comboPrice: '₹649', savings: 178 },
+                    { name: 'Brunch Bundle', description: '2x Grilled Sandwich + 2x Cappuccino + BBQ Platter', originalPrice: 1356, comboPrice: '₹999', savings: 357 }
                 ]
             }
         ];
@@ -205,7 +652,7 @@
                     <div class="p-4">
                         <!-- Name and Rating -->
                         <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-xl font-semibold text-gray-900 truncate">${rest.name}</h3>
+                            <h3 class="text-xl font-semibold text-gray-900 truncate">${getRestaurantNameTranslated(rest.id, rest.name)}</h3>
                             <div class="flex items-center bg-green-600 text-white text-sm font-bold px-2 py-0.5 rounded-md ml-2">
                                 ${rest.rating}
                                 <svg class="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.381-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
@@ -220,37 +667,66 @@
 
                         <!-- Menu toggle -->
                         <div class="mt-3">
-                            <button class="menu-toggle bg-white border border-gray-300 px-3 py-1 rounded-full text-sm font-medium hover:bg-gray-50" onclick="toggleMenu(${rest.id})">View Menu</button>
+                            <button class="menu-toggle bg-white border border-gray-300 px-3 py-1 rounded-full text-sm font-medium hover:bg-gray-50" onclick="toggleMenu(${rest.id})">${t('viewMenu')}</button>
                             <div id="menu-${rest.id}" class="menu collapsible mt-3 bg-gray-50 p-3 rounded-md">
-                                ${rest.menu.map((item, idx) => `
-                                    <div class="menu-item flex flex-col text-sm text-gray-700 py-2" key="${idx}">
-                                        <div class="flex justify-between items-center">
-                                            <div>
-                                                <div class="font-medium cursor-pointer" onclick="showQuickAdd(${rest.id}, ${idx})">${item.name}</div>
-                                                <div id="custom-summary-${rest.id}-${idx}" class="custom-summary text-xs text-gray-500 mt-1">Onion: Yes, Garlic: Yes, Spice: normal</div>
-                                            </div>
-                                            <div class="ml-3 text-right">
-                                                <div class="text-sm font-medium">${item.price}</div>
-                                                <button class="text-xs text-blue-600 mt-1" onclick="toggleCustomize(${rest.id}, ${idx})">Customize</button>
-                                            </div>
-                                        </div>
+                                <!-- Menu Tabs -->
+                                <div class="flex gap-2 mb-3 border-b border-gray-300">
+                                    <button class="menu-tab py-2 px-3 text-xs font-medium border-b-2 border-red-500 text-red-500" onclick="switchMenuTab(${rest.id}, 'items')">${t('items')}</button>
+                                    <button class="menu-tab py-2 px-3 text-xs font-medium border-b-2 border-transparent text-gray-600 hover:text-gray-900" onclick="switchMenuTab(${rest.id}, 'combos')">${t('combos')}</button>
+                                </div>
 
-                                        <div id="customize-${rest.id}-${idx}" class="customize-panel collapsible mt-2 p-2 bg-white border rounded">
-                                            <div class="flex items-center gap-4">
-                                                <label class="text-sm"><input type="checkbox" onchange="updateCustomization(${rest.id}, ${idx}, 'onion', this.checked)" checked> Onion</label>
-                                                <label class="text-sm"><input type="checkbox" onchange="updateCustomization(${rest.id}, ${idx}, 'garlic', this.checked)" checked> Garlic</label>
+                                <!-- Items Tab -->
+                                <div id="tab-items-${rest.id}" class="menu-tab-content">
+                                    ${rest.menu.map((item, idx) => `
+                                        <div class="menu-item flex flex-col text-sm text-gray-700 py-2" key="${idx}">
+                                            <div class="flex justify-between items-center">
+                                                <div>
+                                                    <div class="font-medium cursor-pointer" onclick="showQuickAdd(${rest.id}, ${idx})">${getMenuItemNameTranslated(item.name)}</div>
+                                                    <div id="custom-summary-${rest.id}-${idx}" class="custom-summary text-xs text-gray-500 mt-1">Onion: Yes, Garlic: Yes, Spice: normal</div>
+                                                </div>
+                                                <div class="ml-3 text-right">
+                                                    <div class="text-sm font-medium">${item.price}</div>
+                                                    <button class="text-xs text-blue-600 mt-1" onclick="toggleCustomize(${rest.id}, ${idx})">${t('customize')}</button>
+                                                </div>
                                             </div>
-                                            <div class="mt-2 text-sm">
-                                                <label class="mr-3"><input type="radio" name="masala-${rest.id}-${idx}" onchange="updateCustomization(${rest.id}, ${idx}, 'masala', 'none')"> No Masala</label>
-                                                <label class="mr-3"><input type="radio" name="masala-${rest.id}-${idx}" onchange="updateCustomization(${rest.id}, ${idx}, 'masala', 'normal')" checked> Normal</label>
-                                                <label><input type="radio" name="masala-${rest.id}-${idx}" onchange="updateCustomization(${rest.id}, ${idx}, 'masala', 'extra')"> Extra</label>
-                                            </div>
-                                            <div class="mt-3 flex justify-end">
-                                                <button class="add-to-cart-btn bg-red-500 text-white px-3 py-1 rounded-md text-sm" onclick="addToCart(${rest.id}, ${idx})">Add to cart</button>
+
+                                            <div id="customize-${rest.id}-${idx}" class="customize-panel collapsible mt-2 p-2 bg-white border rounded">
+                                                <div class="flex items-center gap-4">
+                                                    <label class="text-sm"><input type="checkbox" onchange="updateCustomization(${rest.id}, ${idx}, 'onion', this.checked)" checked> Onion</label>
+                                                    <label class="text-sm"><input type="checkbox" onchange="updateCustomization(${rest.id}, ${idx}, 'garlic', this.checked)" checked> Garlic</label>
+                                                </div>
+                                                <div class="mt-2 text-sm">
+                                                    <label class="mr-3"><input type="radio" name="masala-${rest.id}-${idx}" onchange="updateCustomization(${rest.id}, ${idx}, 'masala', 'none')"> No Masala</label>
+                                                    <label class="mr-3"><input type="radio" name="masala-${rest.id}-${idx}" onchange="updateCustomization(${rest.id}, ${idx}, 'masala', 'normal')" checked> Normal</label>
+                                                    <label><input type="radio" name="masala-${rest.id}-${idx}" onchange="updateCustomization(${rest.id}, ${idx}, 'masala', 'extra')"> Extra</label>
+                                                </div>
+                                                <div class="mt-3 flex justify-end">
+                                                    <button class="add-to-cart-btn bg-red-500 text-white px-3 py-1 rounded-md text-sm" onclick="addToCart(${rest.id}, ${idx})">${t('addToCart')}</button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                `).join('')}
+                                    `).join('')}
+                                </div>
+
+                                <!-- Combos Tab -->
+                                <div id="tab-combos-${rest.id}" class="menu-tab-content hidden">
+                                    ${(rest.combos || []).map((combo, cidx) => `
+                                        <div class="combo-item bg-white border border-orange-300 rounded-md p-3 mb-2">
+                                            <div class="flex justify-between items-start">
+                                                <div class="flex-1">
+                                                    <div class="font-semibold text-sm text-gray-900">${getComboNameTranslated(combo.name)}</div>
+                                                    <div class="text-xs text-gray-600 mt-1">${combo.description}</div>
+                                                    <div class="flex gap-2 mt-2 items-center">
+                                                        <span class="text-lg font-bold text-red-500">${combo.comboPrice}</span>
+                                                        <span class="text-xs line-through text-gray-500">₹${combo.originalPrice}</span>
+                                                        <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Save ₹${combo.savings}</span>
+                                                    </div>
+                                                </div>
+                                                <button class="bg-red-500 text-white px-3 py-1 rounded text-xs font-medium hover:bg-red-600" onclick="addComboToCart(${rest.id}, ${cidx})">${t('addToCart')}</button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -314,6 +790,55 @@
             el.classList.toggle('expanded');
         }
 
+        /** Switch between menu tabs (items vs combos) */
+        function switchMenuTab(restId, tab) {
+            const itemsTab = document.getElementById(`tab-items-${restId}`);
+            const combosTab = document.getElementById(`tab-combos-${restId}`);
+            const tabs = document.querySelectorAll(`#menu-${restId} .menu-tab`);
+            
+            if (tab === 'items') {
+                itemsTab.classList.remove('hidden');
+                combosTab.classList.add('hidden');
+                tabs[0].classList.add('border-red-500', 'text-red-500');
+                tabs[0].classList.remove('border-transparent', 'text-gray-600');
+                tabs[1].classList.remove('border-red-500', 'text-red-500');
+                tabs[1].classList.add('border-transparent', 'text-gray-600');
+            } else {
+                itemsTab.classList.add('hidden');
+                combosTab.classList.remove('hidden');
+                tabs[0].classList.remove('border-red-500', 'text-red-500');
+                tabs[0].classList.add('border-transparent', 'text-gray-600');
+                tabs[1].classList.add('border-red-500', 'text-red-500');
+                tabs[1].classList.remove('border-transparent', 'text-gray-600');
+            }
+        }
+
+        /** Add a combo to cart */
+        function addComboToCart(restId, comboIdx) {
+            const rest = restaurants.find(r => r.id === restId);
+            if (!rest || !rest.combos) return;
+            const combo = rest.combos[comboIdx];
+            if (!combo) return;
+
+            const cartItem = {
+                id: Date.now() + Math.random(),
+                restId,
+                restName: rest.name,
+                name: combo.name,
+                price: parseFloat(String(combo.comboPrice).replace(/[₹,\s]/g, '')) || 0,
+                priceText: combo.comboPrice,
+                qty: 1,
+                isCombo: true,
+                description: combo.description,
+                savings: combo.savings
+            };
+
+            cart.push(cartItem);
+            saveCart();
+            renderCart();
+            showToast(`${getComboNameTranslated(combo.name)} added to cart - Save ₹${combo.savings}!`);
+        }
+
         // Customization state: { [restId]: { [itemIdx]: { onion: bool, garlic: bool, masala: 'none'|'normal'|'extra' } } }
         const customizationState = {};
 
@@ -368,7 +893,7 @@
             saveCart();
             renderCart();
             // give quick feedback via toast
-            showToast(`${item.name} added to cart`);
+            showToast(`${getMenuItemNameTranslated(item.name)} added to cart`);
         }
 
         function saveCart() {
@@ -381,7 +906,7 @@
             const totalEl = document.getElementById('cart-total');
             if (!panel || !list || !totalEl) return;
             if (cart.length === 0) {
-                list.innerHTML = '<div class="p-4 text-gray-500">Your cart is empty</div>';
+                list.innerHTML = '<div class="p-4 text-gray-500">' + t('cartEmpty') + '</div>';
                 totalEl.textContent = '0';
                 const countEl = document.getElementById('cart-count');
                 if (countEl) countEl.textContent = '0';
@@ -390,8 +915,12 @@
             list.innerHTML = cart.map(ci => `
                 <div class="flex justify-between items-start p-3 border-b">
                     <div>
-                        <div class="font-medium">${ci.name}</div>
-                        <div class="text-xs text-gray-500">${ci.restName} • ${ci.customization.onion ? 'Onion' : 'No Onion'}, ${ci.customization.garlic ? 'Garlic' : 'No Garlic'}, ${ci.customization.masala}</div>
+                        <div class="font-medium">${ci.isCombo ? getComboNameTranslated(ci.name) : getMenuItemNameTranslated(ci.name)}${ci.isCombo ? ' <span class="text-xs bg-green-100 text-green-700 px-1 rounded">Combo</span>' : ''}</div>
+                        <div class="text-xs text-gray-500">
+                            ${ci.restName}
+                            ${ci.isCombo ? '• ' + ci.description : '• ' + (ci.customization ? (ci.customization.onion ? 'Onion' : 'No Onion') + ', ' + (ci.customization.garlic ? 'Garlic' : 'No Garlic') + ', ' + ci.customization.masala : '')}
+                            ${ci.savings ? '<br><span class="text-green-600 font-semibold">Save ₹' + ci.savings + '</span>' : ''}
+                        </div>
                     </div>
                     <div class="text-right">
                         <div class="font-medium">₹${(ci.price * ci.qty).toFixed(0)}</div>
@@ -445,17 +974,17 @@
     </script>
     <!-- Floating Cart Toggle -->
     <button id="cart-toggle" onclick="toggleCartPanel()" class="fixed right-6 bottom-6 bg-red-500 text-white px-4 py-2 rounded-full shadow-lg z-50 flex items-center gap-2">
-        Cart (<span id="cart-count">0</span>)
+        <span id="cart-text">Cart</span> (<span id="cart-count">0</span>)
     </button>
 
     <!-- Cart Panel -->
         <div id="cart-panel" class="cart-panel fixed right-6 bottom-20 w-80 bg-white border rounded shadow-lg z-50 overflow-hidden">
         <div id="cart-list" class="max-h-64 overflow-auto"></div>
         <div class="p-3 border-t flex items-center justify-between">
-            <div class="text-sm">Total: <span id="cart-total">₹0</span></div>
+            <div class="text-sm"><span id="total-text">Total</span>: <span id="cart-total">₹0</span></div>
             <div class="flex items-center gap-2">
-                <button class="bg-gray-100 px-3 py-1 rounded" onclick="cart = []; saveCart(); renderCart();">Clear</button>
-                <button class="bg-red-500 text-white px-3 py-1 rounded" onclick="alert('Checkout not implemented')">Checkout</button>
+                <button id="clear-btn" class="bg-gray-100 px-3 py-1 rounded" onclick="cart = []; saveCart(); renderCart();">Clear</button>
+                <button id="checkout-btn" class="bg-red-500 text-white px-3 py-1 rounded" onclick="openCheckoutModal()">Checkout</button>
             </div>
         </div>
     </div>
@@ -522,7 +1051,7 @@
                 <div style="display:flex; gap:12px; align-items:center;">
                     <img src="${imgSrc}" alt="${item.name}" style="width:120px; height:80px; object-fit:cover; border-radius:6px; flex-shrink:0;" />
                     <div style="flex:1">
-                        <div style="font-weight:600; margin-bottom:6px">${item.name}</div>
+                        <div style="font-weight:600; margin-bottom:6px">${getMenuItemNameTranslated(item.name)}</div>
                         <div style="color:#6b7280; margin-bottom:12px">Price: ${item.price}</div>
                         <div style="display:flex; justify-content:flex-end; gap:8px">
                             <button id="qa-cancel" style="padding:6px 10px; border-radius:6px; background:#f3f4f6; border:none;">Cancel</button>
@@ -552,7 +1081,138 @@
         }
     </script>
 
-    <!-- Checkout modal removed: reverted to previous behavior where Checkout shows a simple alert -->
+    <!-- Checkout Modal with Biodegradable Add-On -->
+    <div id="checkout-modal" class="modal-backdrop" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+            <div class="modal-header">
+                <div id="checkout-title" class="font-bold">Checkout</div>
+                <button onclick="closeCheckoutModal()" class="text-gray-600">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="checkout-order-summary">
+                    <!-- order items populated here -->
+                </div>
+
+                <div class="mt-4 p-3 bg-green-50 border border-green-200 rounded">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="bio-addon" onchange="updateCheckoutTotal()"> 
+                        <span class="text-sm"><strong>Biodegradable Packaging</strong> (+₹20)</span>
+                    </label>
+                    <div class="text-xs text-gray-600 mt-1">Eco-friendly packaging for a sustainable future</div>
+                </div>
+
+                <div class="mt-4">
+                    <div class="form-row">
+                        <label for="cust-name">Name</label>
+                        <input id="cust-name" type="text" placeholder="Full name">
+                    </div>
+                    <div class="form-row">
+                        <label for="cust-phone">Phone</label>
+                        <input id="cust-phone" type="text" placeholder="Phone number">
+                    </div>
+                    <div class="form-row">
+                        <label for="cust-address">Delivery address</label>
+                        <textarea id="cust-address" rows="3" placeholder="Street, area, city"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label for="payment-method">Payment method</label>
+                        <select id="payment-method">
+                            <option value="cash">Cash on delivery</option>
+                            <option value="card">Card (mock)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="px-3 py-1 rounded bg-gray-100" onclick="closeCheckoutModal()">Cancel</button>
+                <button class="px-3 py-1 rounded bg-red-500 text-white" onclick="submitOrder()">Place order</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BIO_ADDON_PRICE = 20; // Biodegradable packaging fee
+
+        function openCheckoutModal() {
+            const modal = document.getElementById('checkout-modal');
+            const summary = document.getElementById('checkout-order-summary');
+            if (!modal || !summary) return;
+            // populate order summary
+            if (!cart || cart.length === 0) {
+                summary.innerHTML = '<div class="p-3 text-gray-500">Your cart is empty.</div>';
+            } else {
+                const itemsHtml = cart.map(ci => `
+                    <div class="order-summary-item">
+                        <div>${ci.name} <span class="text-xs text-gray-500">x${ci.qty}</span></div>
+                        <div>₹${(ci.price*ci.qty).toFixed(0)}</div>
+                    </div>
+                `).join('');
+                const total = cart.reduce((s,c)=>s+(c.price*c.qty),0);
+                summary.innerHTML = itemsHtml + `<div id="checkout-subtotal" class="mt-3 flex justify-between" style="font-size:0.9rem; color:#6b7280"><div>Subtotal</div><div>₹${total.toFixed(0)}</div></div><div id="checkout-addon-line" style="display:none;" class="flex justify-between text-xs text-green-700"><div>Biodegradable Packaging</div><div>+₹${BIO_ADDON_PRICE}</div></div><div class="mt-2 flex justify-between order-total"><div>Total</div><div id="checkout-grand-total">₹${total.toFixed(0)}</div></div>`;
+            }
+            // reset form fields and checkbox
+            document.getElementById('cust-name').value = '';
+            document.getElementById('cust-phone').value = '';
+            document.getElementById('cust-address').value = '';
+            document.getElementById('payment-method').value = 'cash';
+            document.getElementById('bio-addon').checked = false;
+
+            modal.classList.add('show');
+            modal.setAttribute('aria-hidden','false');
+        }
+
+        function closeCheckoutModal() {
+            const modal = document.getElementById('checkout-modal');
+            if (!modal) return;
+            modal.classList.remove('show');
+            modal.setAttribute('aria-hidden','true');
+        }
+
+        function updateCheckoutTotal() {
+            const bioChecked = document.getElementById('bio-addon').checked;
+            const addonLine = document.getElementById('checkout-addon-line');
+            if (addonLine) addonLine.style.display = bioChecked ? 'flex' : 'none';
+            
+            const subtotal = cart.reduce((s,c)=>s+(c.price*c.qty),0);
+            const addonCost = bioChecked ? BIO_ADDON_PRICE : 0;
+            const total = subtotal + addonCost;
+            const grandTotalEl = document.getElementById('checkout-grand-total');
+            if (grandTotalEl) grandTotalEl.textContent = `₹${total.toFixed(0)}`;
+        }
+
+        function submitOrder() {
+            if (!cart || cart.length === 0) { showToast('Cart is empty'); return; }
+            const name = document.getElementById('cust-name').value.trim();
+            const phone = document.getElementById('cust-phone').value.trim();
+            const address = document.getElementById('cust-address').value.trim();
+            const payment = document.getElementById('payment-method').value;
+            const bioAddon = document.getElementById('bio-addon').checked;
+            
+            if (!name || !address) { showToast('Please enter name and address'); return; }
+
+            const subtotal = cart.reduce((s,c)=>s+(c.price*c.qty),0);
+            const addonCost = bioAddon ? BIO_ADDON_PRICE : 0;
+            const order = {
+                id: 'ORD' + Date.now(),
+                items: cart.map(c=>({name:c.name, qty:c.qty, customization:c.customization, price:c.price})),
+                subtotal: subtotal,
+                biodegradableAddon: { selected: bioAddon, price: bioAddon ? BIO_ADDON_PRICE : 0 },
+                total: subtotal + addonCost,
+                customer: { name, phone, address, payment },
+                createdAt: new Date().toISOString()
+            };
+            const orders = JSON.parse(localStorage.getItem('gems_orders')||'[]');
+            orders.push(order);
+            localStorage.setItem('gems_orders', JSON.stringify(orders));
+
+            // Clear cart
+            cart = [];
+            saveCart();
+            renderCart();
+            closeCheckoutModal();
+            showToast('Order placed — ' + order.id);
+        }
+    </script>
 
 </body>
 </html>
